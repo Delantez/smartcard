@@ -1,0 +1,52 @@
+# Python-related files
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.sqlite3
+*.log
+
+# Django-specific files
+db.sqlite3
+*.pot
+*.pyc
+*.pyo
+*.db
+
+# Media and static files
+/media
+/static
+/staticfiles/
+
+# Virtual environments
+venv/
+.env/
+env/
+ENV/
+*.env
+
+# VS Code settings
+.vscode/
+
+# macOS-related files
+.DS_Store
+
+# Byte-compiled / optimized / DLL files
+*.py[cod]
+*.so
+
+# Test logs, coverage reports, and pytest cache
+coverage/
+.tox/
+.cache/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Mypy
+.mypy_cache/
+
+# Pycharm
+.idea/

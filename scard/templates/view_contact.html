@@ -1,0 +1,119 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<h2>Contact List</h2>
+
+<!-- Table for Displaying Contacts -->
+<table class="contacts-table">
+    <thead>
+        <tr>
+            <th>S/N</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Address</th>
+        </tr>
+    </thead>
+    <tbody id="contacts-table-body">
+        <!-- Rows will be populated dynamically via JavaScript -->
+    </tbody>
+</table>
+
+<!-- Background Overlay for Blurring -->
+<div id="blur-background" class="blur-background"></div>
+
+<!-- Pop-up Card -->
+<div id="contact-card" class="contact-card">
+    <div class="card-content">
+        <!-- QR Code Section -->
+        <div class="qr-code-column">
+            <img id="contact-qr" src="" alt="QR Code">
+        </div>
+        <!-- Contact Details Section -->
+        <div class="details-column">
+            <p><strong>Names:</strong> <span id="contact-names"></span></p>
+            <p><strong>Phone:</strong> <span id="contact-phone"></span></p>
+            <p><strong>Email:</strong> <span id="contact-email"></span></p>
+            <p><strong>Address:</strong> <span id="contact-address"></span></p>
+            <p><strong>Organization:</strong> <span id="contact-organization"></span></p>
+            <p><strong>Job:</strong> <span id="contact-job"></span></p>
+            <p><strong>Country:</strong> <span id="contact-country"></span></p>
+        </div>
+    </div>
+    <!-- Buttons Section -->
+    <div class="card-buttons">
+        <button id="download-qr">Download QR Code</button>
+        <button id="close-card">Close</button>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    // Fetch the contacts from the server and display them in the table
+    axios.get('/api/contacts/')
+        .then(response => {
+            const contacts = response.data;
+            const tableBody = document.getElementById('contacts-table-body');
+            
+            contacts.forEach((contact, index) => {
+                const row = document.createElement('tr');
+                row.addEventListener('click', () => showContactDetails(contact)); // Add click event to each row
+                
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${contact.first_name}</td>
+                    <td>${contact.last_name}</td>
+                    <td>${contact.phone}</td>
+                    <td>${contact.email}</td>
+                    <td>${contact.address}</td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching contacts:', error);
+        });
+
+    // Function to show the contact details in a pop-up card
+    function showContactDetails(contact) {
+        // Set the contact details in the card
+        document.getElementById('contact-names').innerText = `${contact.first_name} ${contact.last_name}`;
+        document.getElementById('contact-phone').innerText = contact.phone;
+        document.getElementById('contact-email').innerText = contact.email;
+        document.getElementById('contact-address').innerText = contact.address;
+        document.getElementById('contact-organization').innerText = contact.organization || 'N/A';
+        document.getElementById('contact-job').innerText = contact.job || 'N/A';
+        document.getElementById('contact-country').innerText = contact.country || 'N/A';
+        
+        // Load the QR code dynamically
+        const qrCodeImage = document.getElementById('contact-qr');
+        qrCodeImage.src = contact.qrcode;  // Fetch QR code URL from API response
+
+        // Attach the download functionality
+        const downloadButton = document.getElementById('download-qr');
+        downloadButton.addEventListener('click', () => downloadQRCode(contact.qrcode, `${contact.first_name}_${contact.last_name}_QR.png`));
+        
+        // Show the pop-up card and background blur
+        document.getElementById('contact-card').style.display = 'block';
+        document.getElementById('blur-background').style.display = 'block';
+    }
+
+    // Function to download the QR code
+    function downloadQRCode(qrCodeUrl, fileName) {
+        const link = document.createElement('a');
+        link.href = qrCodeUrl;
+        link.download = fileName;
+        link.click();
+    }
+
+    // Close the pop-up card
+    document.getElementById('close-card').addEventListener('click', () => {
+        document.getElementById('contact-card').style.display = 'none';
+        document.getElementById('blur-background').style.display = 'none';
+    });
+</script>
+
+{% endblock %}

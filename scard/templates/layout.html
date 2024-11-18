@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Card</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <!-- Hamburger menu for mobile -->
+            <div class="hamburger" onclick="toggleSidebar()">&#9776;</div>
+            <div class="navbar-left">
+                <h1>Smart Card</h1>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <aside class="sidebar">
+            <ul>
+                <li><a href="{% url 'add_contact' %}">Add Contacts</a></li>
+                <li><a href="{% url 'view_contact' %}">View Contact</a></li>
+            </ul>
+        </aside>
+        <section class="content">
+            {% block content %}
+            <!-- Content will be inserted here -->
+            {% endblock %}
+        </section>
+    </main>
+    <footer>
+        <p>© 2024 Yana Corp. All rights reserved.</p>
+    </footer>
+    
+    <script>
+        // Toggle sidebar visibility for small screens
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('show');
+        }
+    </script>
+</body>
+</html>
