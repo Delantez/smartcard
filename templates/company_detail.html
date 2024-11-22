@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ company.company_name }} - Company Details</title>
+</head>
+<body>
+    <h1>{{ company.company_name }}</h1>
+    <p><strong>Location:</strong> {{ company.location }}</p>
+    <p><strong>About:</strong> {{ company.about }}</p>
+    <p><strong>Product:</strong> {{ company.product }}</p>
+    <p><strong>Email:</strong> <a href="mailto:{{ company.email }}">{{ company.email }}</a></p>
+    <p><strong>Phone:</strong> {{ company.phone }}</p>
+    
+    <!-- Display the QR code image -->
+    <h3>Company QR Code:</h3>
+    <img src="{{ company.qrcode.url }}" alt="QR Code">
+</body>
+</html>

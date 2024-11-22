@@ -1,0 +1,44 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container mt-5 content">
+    <h2 class="text-center mb-4">Flyer List</h2>
+    <div class="table-responsive">
+    <table class="table table-bordered contacts-table table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>S/N</th>
+                <th>Company</th>
+                <th>Description</th> <!-- New column for description -->
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for flyer in flyers %}
+                <tr onclick="window.location.href='{% url 'view_flyer' flyer.id %}'" style="cursor: pointer;">
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ flyer.company }}</td>
+                    <td>{{ flyer.description|default:"N/A" }}</td> <!-- Safely display description -->
+                    <td>
+                         <!-- Edit Flyer button -->
+                         <a href="{% url 'edit_flyer' flyer.id %}" class="btn btn-warning btn-sm">Edit</a>
+                        
+                        <!-- Download QR Code button -->
+                      <!-- Download QR Code button -->
+                      <a href="{% url 'generate_flyer_qr' flyer.id %}" class="btn btn-primary btn-sm" download>Download QR</a>
+
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+    {% if not flyers %}
+        <div class="alert alert-info text-center mt-4">
+            No flyers found. <a href="{% url 'add_flyer' %}">Add a new flyer</a>.
+        </div>
+    {% endif %}
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

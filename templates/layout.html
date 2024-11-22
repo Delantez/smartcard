@@ -23,8 +23,14 @@
     <main>
         <aside class="sidebar">
             <ul>
+                <li><a href="{% url 'add_id' %}">Add ID</a></li>
+                <li><a href="{% url 'view_id' %}">ID's</a></li>
                 <li><a href="{% url 'add_contact' %}">Add Contacts</a></li>
-                <li><a href="{% url 'view_contact' %}">View Contact</a></li>
+                <li><a href="{% url 'view_contact' %}">Contacts</a></li>
+                <li><a href="{% url 'add_company' %}">Add Company</a></li>
+                <li><a href="{% url 'view_company' %}">Companies</a></li>
+                <li><a href="{% url 'add_flyer' %}">Add Flyer</a></li>
+                <li><a href="{% url 'flyer_table' %}">Flyers</a></li>
             </ul>
         </aside>
         <section class="content">

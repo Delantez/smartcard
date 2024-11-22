@@ -1,0 +1,21 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Flyer Details</h2>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Company: {{ flyer.company }}</h5>
+            <p class="card-text"><strong>Description:</strong> {{ flyer.description|default:"N/A" }}</p>
+            {% if flyer.file %}
+                <p><strong>Flyer File:</strong> <a href="{{ flyer.file.url }}"  target="_blank">View Flyer</a></p>
+            {% else %}
+                <p class="text-muted">No file available</p>
+            {% endif %}
+        </div>
+        <div class="card-footer">
+            <a href="{% url 'flyer_table' %}" class="btn btn-secondary btn-submit">Back to List</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<div class="form-container mt-5">
+    <h2>Edit Flyer</h2>
+    <form id="edit-flyer-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="company">Company</label>
+            <input type="text" id="company" name="company" value="{{ flyer.company }}">
+        </div>
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description">{{ flyer.description }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="file">Flyer File</label>
+            <input type="file" id="file" name="file">
+            {% if flyer.file %}
+                <p>Current File: <a href="{{ flyer.file.url }}" target="_blank">View Flyer</a></p>
+            {% endif %}
+        </div>
+        <button type="submit" class="btn-submit">Save Changes</button>
+    </form>
+</div>
+
+<!-- Background Blur -->
+<div id="blur-overlay" class="blur-overlay" style="display: none;"></div>
+
+<!-- Success Popup Card -->
+<div id="popup-card" class="popup-card" style="display: none;">
+    <div class="popup-content">
+        <p id="popup-message">Flyer updated successfully!</p>
+        <div class="popup-buttons">
+            <button id="editAgainBtn" class="btn-add">Edit Again</button>
+            <button id="viewFlyersBtn" class="btn-view">View Flyers</button>
+        </div>
+    </div>
+</div>
+
+<!-- Regular Response Message -->
+<div id="response-message" style="margin-top: 20px; font-weight: bold;"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    // Function to get CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrfToken = getCookie('csrftoken'); // Fetch the CSRF token
+
+    document.getElementById('edit-flyer-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const flyerId = "{{ flyer.id }}"; // Dynamic flyer ID passed from the view
+        const formData = new FormData(this);
+
+        axios.put(`/api/flyers/${flyerId}/`, formData, {
+            headers: {
+                'X-CSRFToken': csrfToken, // Include the CSRF token in the request headers
+            }
+        })
+        .then(response => {
+            // Success: Show the popup card
+            document.getElementById('popup-card').style.display = 'block';  // Show the success card
+            document.getElementById('popup-message').innerText = "Flyer updated successfully!";
+            document.getElementById('popup-message').style.color = 'green';  // Success message color
+            document.getElementById('response-message').style.display = 'none';  // Hide error message
+            document.getElementById('blur-overlay').style.display = 'block';  // Show background blur
+        })
+        .catch(error => {
+            // Failure: Show the error message
+            console.error('Error updating flyer:', error.response ? error.response.data : error.message);
+            document.getElementById('response-message').innerText = "Failed to update flyer. Please try again.";
+            document.getElementById('response-message').style.color = 'red';  // Error message color
+            document.getElementById('response-message').style.display = 'block';  // Show error message
+            document.getElementById('popup-card').style.display = 'none';  // Hide the popup card
+            document.getElementById('blur-overlay').style.display = 'none';  // Hide background blur
+        });
+    });
+
+    // Edit Again Button
+    document.getElementById('editAgainBtn').addEventListener('click', function() {
+        document.getElementById('popup-card').style.display = 'none';  // Hide the popup card
+        document.getElementById('blur-overlay').style.display = 'none';  // Hide background blur
+    });
+
+    // View Flyers Button
+    document.getElementById('viewFlyersBtn').addEventListener('click', function() {
+        window.location.href = '/flyer_table/';  // Redirect to the flyer list page
+    });
+</script>
+
+{% endblock %}

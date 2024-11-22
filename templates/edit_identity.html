@@ -1,0 +1,144 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<div class="form-container mt-5">
+    <h2>Edit Identity</h2>
+    <form id="edit-identity-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="first_name">First Name</label>
+            <input type="text" id="first_name" name="first_name" value="{{ identity.first_name }}">
+        </div>
+        <div class="form-group">
+            <label for="last_name">Last Name</label>
+            <input type="text" id="last_name" name="last_name" value="{{ identity.last_name }}">
+        </div>
+        <div class="form-group">
+            <label for="number">Number</label>
+            <input type="text" id="number" name="number" value="{{ identity.number }}">
+        </div>
+        <div class="form-group">
+            <label for="photo">Photograph</label>
+            <div class="photo-preview">
+                {% if identity.photo %}
+                <img src="{{ identity.photo.url }}" alt="Uploaded Photograph" id="photo-preview" style="max-height: 200px; margin-bottom: 10px;">
+                {% else %}
+                <p>No photo uploaded</p>
+                {% endif %}
+            </div>
+            <input type="file" id="photo" name="photo">
+        </div>
+        <div class="form-group">
+            <label for="company">Company</label>
+            <input type="text" id="company" name="company" value="{{ identity.company }}">
+        </div>
+        <div class="form-group">
+            <label for="position">Position</label>
+            <input type="text" id="position" name="position" value="{{ identity.position }}">
+        </div>
+        <div class="form-group">
+            <label for="validity_time">Validity Time</label>
+            <input type="date" id="validity_time" name="validity_time" 
+                   value="{{ identity.validity_time|date:'Y-m-d' }}">
+        </div>
+        <!-- Add the work field -->
+        <div class="form-group">
+            <label for="work">Work Status</label>
+            <select id="work" name="work">
+                <option value="isstaff" {% if identity.work == 'isstaff' %}selected{% endif %}>Active</option>
+                <option value="notstaff" {% if identity.work == 'notstaff' %}selected{% endif %}>Inactive</option>
+            </select>
+        </div>
+        <button type="submit" class="btn-submit">Save Changes</button>
+    </form>
+</div>
+
+<!-- Background Blur -->
+<div id="blur-overlay" class="blur-overlay" style="display: none;"></div>
+
+<!-- Success Popup Card -->
+<div id="popup-card" class="popup-card" style="display: none;">
+    <div class="popup-content">
+        <p id="popup-message">Identity updated successfully!</p>
+        <div class="popup-buttons">
+            <button id="editAgainBtn" class="btn-add">Edit Again</button>
+            <button id="viewIdentitiesBtn" class="btn-view">View Identities</button>
+        </div>
+    </div>
+</div>
+
+<!-- Regular Response Message -->
+<div id="response-message" style="margin-top: 20px; font-weight: bold;"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    // Function to get CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrfToken = getCookie('csrftoken'); // Fetch the CSRF token
+
+    document.getElementById('edit-identity-form').addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    const identityId = "{{ identity.id }}"; // Dynamic identity ID passed from the view
+    const formData = new FormData(this);
+
+    // Check if a new photo was uploaded
+    const photoInput = document.getElementById('photo');
+    if (!photoInput.files.length) {
+        // If no new photo is uploaded, do not include the photo field in FormData
+        formData.delete('photo'); // Ensure the 'photo' field is not set to an empty value
+    }
+
+    axios.put(`/api/identities/${identityId}/`, formData, {
+        headers: {
+            'X-CSRFToken': csrfToken, // Include the CSRF token in the request headers
+        }
+    })
+    .then(response => {
+        // Success: Show the popup card
+        document.getElementById('popup-card').style.display = 'block';  // Show the success card
+        document.getElementById('popup-message').innerText = "Identity updated successfully!";
+        document.getElementById('popup-message').style.color = 'green';  // Success message color
+        document.getElementById('response-message').style.display = 'none';  // Hide error message
+        document.getElementById('blur-overlay').style.display = 'block';  // Show background blur
+    })
+    .catch(error => {
+        // Failure: Show the error message
+        console.error('Error updating identity:', error.response ? error.response.data : error.message);
+        document.getElementById('response-message').innerText = "Failed to update identity. Please try again.";
+        document.getElementById('response-message').style.color = 'red';  // Error message color
+        document.getElementById('response-message').style.display = 'block';  // Show error message
+        document.getElementById('popup-card').style.display = 'none';  // Hide the popup card
+        document.getElementById('blur-overlay').style.display = 'none';  // Hide background blur
+    });
+});
+
+
+    // Edit Again Button
+    document.getElementById('editAgainBtn').addEventListener('click', function() {
+        document.getElementById('popup-card').style.display = 'none';  // Hide the popup card
+        document.getElementById('blur-overlay').style.display = 'none';  // Hide background blur
+    });
+
+    // View Identities Button
+    document.getElementById('viewIdentitiesBtn').addEventListener('click', function() {
+        window.location.href = '/view-id/';  // Redirect to the page displaying identities
+    });
+</script>
+
+{% endblock %}

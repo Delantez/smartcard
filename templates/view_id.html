@@ -1,0 +1,51 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container mt-5 content">
+    <h2 class="text-center mb-4">Identity List</h2>
+    <div class="table-responsive">
+        <table class="table table-bordered contacts-table table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>S/N</th>
+                    <th>Name</th>
+                    <th>Number</th>
+                    <th>Position</th>
+                    <th>Company</th>
+                    <th>Validity Time</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for identity in identities %}
+                    <tr onclick="window.location.href='{% url 'view_identity' identity.id %}'" style="cursor:pointer;">
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ identity.first_name }} {{ identity.last_name }}</td>
+                        <td>{{ identity.number }}</td>
+                        <td>{{ identity.position|default:"N/A" }}</td>
+                        <td>{{ identity.company|default:"N/A" }}</td>
+                        <td>{{ identity.validity_time|date:"Y-m-d" }}</td>
+                        <td>
+                            {% if identity.is_active %}
+                                <span class="badge bg-success">Valid</span>
+                            {% else %}
+                                <span class="badge bg-danger">Invalid</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'edit_identity' identity.id %}" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="{% url 'generate_qr' identity.id %}" class="btn btn-primary btn-sm" download>Download QR</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if not identities %}
+        <div class="alert alert-info text-center mt-4">
+            No identities found. <a href="{% url 'add_identity' %}">Add a new identity</a>.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

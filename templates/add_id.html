@@ -1,0 +1,130 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<h2>Add Identity</h2>
+<div id="message" style="display: none;"></div>
+<form id="identityForm" class="form-container" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="first_name">First Name</label>
+        <input type="text" id="first_name" name="first_name" required>
+    </div>
+    <div class="form-group">
+        <label for="last_name">Last Name</label>
+        <input type="text" id="last_name" name="last_name" required>
+    </div>
+    <div class="form-group">
+        <label for="number">Number</label>
+        <input type="text" id="number" name="number" required>
+    </div>
+    <div class="form-group">
+        <label for="photo">Photograph</label>
+        <input type="file" id="photo" name="photo">
+    </div>
+    <div class="form-group">
+        <label for="company">Company</label>
+        <input type="text" id="company" name="company">
+    </div>
+    <div class="form-group">
+        <label for="position">Position</label>
+        <input type="text" id="position" name="position">
+    </div>
+    <div class="form-group">
+        <label for="validity_time">Validity Time</label>
+        <input type="date" id="validity_time" name="validity_time" required>
+    </div>
+    <!-- New Work Field -->
+    <div class="form-group">
+        <label for="work">Work</label>
+        <select id="work" name="work" required>
+            <option value="notstaff">Inactive</option>
+            <option value="isstaff">Active</option>
+        </select>
+    </div>
+    <button type="button" id="submitBtn" class="btn-submit">Add Identity</button>
+</form>
+
+<!-- Background Blur -->
+<div id="blur-overlay" class="blur-overlay" style="display: none;"></div>
+
+<!-- Success Popup Card -->
+<div id="popup-card" class="popup-card" style="display: none;">
+    <div class="popup-content">
+        <p id="popup-message">Identity added successfully!</p>
+        <div class="popup-buttons">
+            <button id="addAnotherBtn" class="btn-add">Add Another Identity</button>
+            <button id="viewIdentitiesBtn" class="btn-view">View Identities</button>
+        </div>
+    </div>
+</div>
+
+<!-- Regular Response Message -->
+<div id="response-message" style="margin-top: 20px; font-weight: bold;"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    // Function to get CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrfToken = getCookie('csrftoken'); // Fetch the CSRF token
+
+    // Handle form submission using axios
+    document.getElementById('submitBtn').addEventListener('click', function(e) {
+        e.preventDefault();  // Prevent form reload
+
+        const form = document.getElementById('identityForm');
+        const formData = new FormData(form); // Collect all form data including file uploads
+
+        axios.post('/api/identities/', formData, {
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'multipart/form-data', // Important for file uploads
+            }
+        })
+        .then(response => {
+            // Success: Show the popup card
+            document.getElementById('popup-card').style.display = 'block';
+            document.getElementById('popup-message').innerText = "Identity added successfully!";
+            document.getElementById('popup-message').style.color = 'green';
+            form.reset();
+            document.getElementById('response-message').style.display = 'none';
+            document.getElementById('blur-overlay').style.display = 'block';
+        })
+        .catch(error => {
+            // Failure: Show the error message
+            console.error('Error:', error.response ? error.response.data : error.message);
+            document.getElementById('response-message').innerText = "There was an error saving the identity.";
+            document.getElementById('response-message').style.color = 'red';
+            document.getElementById('response-message').style.display = 'block';
+            document.getElementById('popup-card').style.display = 'none';
+            document.getElementById('blur-overlay').style.display = 'none';
+        });
+    });
+
+    // Add Another Identity Button
+    document.getElementById('addAnotherBtn').addEventListener('click', function() {
+        document.getElementById('popup-card').style.display = 'none';
+        document.getElementById('identityForm').reset();
+        document.getElementById('blur-overlay').style.display = 'none';
+    });
+
+    // View Identities Button
+    document.getElementById('viewIdentitiesBtn').addEventListener('click', function() {
+        window.location.href = '/view-id';
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% load static %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/display.css' %}">
+
+    <title>ID</title>
+</head>
+<body>
+    
+<div class="container mt-5">
+    <!-- <h2>Identity Details</h2> -->
+    <div class="card mb-4">
+        <div class="card-header text-center">
+            <!-- Photo at the top -->
+            {% if identity.photo %}
+            <img src="{{ identity.photo.url }}" alt="Photo of {{ identity.first_name }}" class="img-thumbnail" style="max-width: 150px; border-radius: 50%; margin-bottom: 15px;">
+            {% endif %}
+            <h4>{{ identity.first_name }} {{ identity.last_name }}</h4>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-3"><strong>Number:</strong></div>
+                <div class="col-md-9">{{ identity.number }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3"><strong>Position:</strong></div>
+                <div class="col-md-9">{{ identity.position|default:"N/A" }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3"><strong>Company:</strong></div>
+                <div class="col-md-9">{{ identity.company|default:"N/A" }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3"><strong>Validity Time:</strong></div>
+                <div class="col-md-9">{{ identity.validity_time|date:"Y-m-d" }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3"><strong>Status:</strong></div>
+                <div class="col-md-9">
+                    {% if identity.is_active %}
+                        <span class="badge bg-success">Valid</span>
+                    {% else %}
+                        <span class="badge bg-danger">Invalid</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- <div class="d-flex justify-content-between">
+        <a href="{% url 'view_id' %}" class="btn btn-secondary">Back to List</a>
+        <a href="{% url 'edit_identity' identity.id %}" class="btn btn-primary">Edit</a>
+    </div> -->
+</div>
+
+</body>
+</html>

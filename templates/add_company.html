@@ -1,0 +1,125 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<h2>Add Company</h2>
+<div id="message" style="display: none;"></div>
+<form id="companyForm" class="form-container">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="company_name">Company Name</label>
+        <input type="text" id="company_name" name="company_name" required>
+    </div>
+    <div class="form-group">
+        <label for="location">Location</label>
+        <input type="text" id="location" name="location">
+    </div>
+    <div class="form-group">
+        <label for="about">About</label>
+        <textarea id="about" name="about"></textarea>
+    </div>
+    <div class="form-group">
+        <label for="product">Product</label>
+        <input type="text" id="product" name="product">
+    </div>
+    <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+    </div>
+    <div class="form-group">
+        <label for="phone">Phone</label>
+        <input type="text" id="phone" name="phone">
+    </div>
+    <button type="button" id="submitBtn" class="btn-submit">Add Company</button>
+</form>
+
+<!-- Background Blur -->
+<div id="blur-overlay" class="blur-overlay" style="display: none;"></div>
+
+<!-- Success Popup Card -->
+<div id="popup-card" class="popup-card" style="display: none;">
+    <div class="popup-content">
+        <p id="popup-message">Company added successfully!</p>
+        <div class="popup-buttons">
+            <button id="addAnotherBtn" class="btn-add">Add Another Company</button>
+            <button id="viewCompaniesBtn" class="btn-view">View Companies</button>
+        </div>
+    </div>
+</div>
+
+<!-- Regular Response Message -->
+<div id="response-message" style="margin-top: 20px; font-weight: bold;"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    // Function to get CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrfToken = getCookie('csrftoken'); // Fetch the CSRF token
+
+    // Handle form submission using axios
+    document.getElementById('submitBtn').addEventListener('click', function(e) {
+        e.preventDefault();  // Prevent form from reloading the page
+
+        const formData = new FormData(document.getElementById('companyForm'));
+        const data = {
+            company_name: formData.get('company_name'),
+            location: formData.get('location'),
+            about: formData.get('about'),
+            product: formData.get('product'),
+            email: formData.get('email'),
+            phone: formData.get('phone'),
+        };
+
+        axios.post('/api/companies/', data, {
+            headers: {
+                'X-CSRFToken': csrfToken, // Include the CSRF token in the request headers
+            }
+        })
+        .then(response => {
+            // Success: Show the popup card
+            document.getElementById('popup-card').style.display = 'block';
+            document.getElementById('popup-message').innerText = "Company added successfully!";
+            document.getElementById('popup-message').style.color = 'green';
+            document.getElementById('companyForm').reset();
+            document.getElementById('response-message').style.display = 'none';
+            document.getElementById('blur-overlay').style.display = 'block';
+        })
+        .catch(error => {
+            // Failure: Show the error message
+            console.error('Error:', error.response ? error.response.data : error.message);
+            document.getElementById('response-message').innerText = "There was an error saving the company.";
+            document.getElementById('response-message').style.color = 'red';
+            document.getElementById('response-message').style.display = 'block';
+            document.getElementById('popup-card').style.display = 'none';
+            document.getElementById('blur-overlay').style.display = 'none';
+        });
+    });
+
+    // Add Another Company Button
+    document.getElementById('addAnotherBtn').addEventListener('click', function() {
+        document.getElementById('popup-card').style.display = 'none';
+        document.getElementById('companyForm').reset();
+        document.getElementById('blur-overlay').style.display = 'none';
+        window.location.href = '/add_company';
+    });
+
+    // View Companies Button
+    document.getElementById('viewCompaniesBtn').addEventListener('click', function() {
+        window.location.href = '/view-company';
+    });
+</script>
+
+{% endblock %}

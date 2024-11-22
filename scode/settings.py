@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-^&sy-(4m+wnda6kwv70t9zfl^i#&bb0p8-_rpaqw0a8e_u3mcu
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', '192.168.247.143']
+ALLOWED_HOSTS = ["127.0.0.1", "192.168.247.143", "192.168.1.145"]
 
 
 # Application definition
@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'client',
     'rest_framework',
+    'django.contrib.sites',
 ]
 
 MIDDLEWARE = [
@@ -52,7 +53,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'scard.urls'
+ROOT_URLCONF = 'scode.urls'
 
 TEMPLATES = [
     {
@@ -70,19 +71,30 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'scard.wsgi.application'
+WSGI_APPLICATION = 'scode.wsgi.application'
 
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'scode',        # Updated database name
+#         'USER': 'lijah',       # Updated username
+#         'PASSWORD': '123',   # Updated password
+#         'HOST': 'localhost',
+#         'PORT': '',  
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR/"scode.sqlite3",
+
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -108,7 +120,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Nairobi'
 
 USE_I18N = True
 
@@ -135,3 +147,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+SITE_ID = 3

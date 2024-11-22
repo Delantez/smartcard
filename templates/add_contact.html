@@ -4,6 +4,7 @@
 <h2>Add Contact</h2>
 <div id="message" style="display: none;"></div>
 <form id="contactForm" class="form-container">
+    {% csrf_token %}
     <div class="form-group">
         <label for="first_name">First Name</label>
         <input type="text" id="first_name" name="first_name" required>
@@ -58,11 +59,28 @@
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
-    // Handle form submission using axios
+    // Function to get CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrfToken = getCookie('csrftoken'); // Fetch the CSRF token
+
     document.getElementById('submitBtn').addEventListener('click', function(e) {
         e.preventDefault();  // Prevent form from reloading the page
 
-        const formData = new FormData(document.getElementById('contactForm'));  // Use correct form ID
+        const formData = new FormData(document.getElementById('contactForm'));
         const data = {
             first_name: formData.get('first_name'),
             last_name: formData.get('last_name'),
@@ -74,38 +92,40 @@
             country: formData.get('country')
         };
 
-        axios.post('/api/contacts/', data)
-            .then(response => {
-                // Success: Show the popup card
-                document.getElementById('popup-card').style.display = 'block';  // Show the success card
-                document.getElementById('popup-message').innerText = "Contact added successfully!";
-                document.getElementById('popup-message').style.color = 'green';  // Success message color
-                document.getElementById('contactForm').reset();  // Reset form
-                document.getElementById('response-message').style.display = 'none';  // Hide regular response message
-                document.getElementById('blur-overlay').style.display = 'block';  // Show background blur
-            })
-            .catch(error => {
-                // Failure: Show the regular message
-                console.error('Error:', error);
-                document.getElementById('response-message').innerText = "There was an error saving the contact.";
-                document.getElementById('response-message').style.color = 'red';  // Error message color
-                document.getElementById('response-message').style.display = 'block';  // Show error message
-                document.getElementById('popup-card').style.display = 'none';  // Hide the popup card
-                document.getElementById('blur-overlay').style.display = 'none';  // Hide background blur
-            });
+        axios.post('/api/contacts/', data, {
+            headers: {
+                'X-CSRFToken': csrfToken, // Include the CSRF token in the request headers
+            }
+        })
+        .then(response => {
+            document.getElementById('popup-card').style.display = 'block';
+            document.getElementById('popup-message').innerText = "Contact added successfully!";
+            document.getElementById('popup-message').style.color = 'green';
+            document.getElementById('contactForm').reset();
+            document.getElementById('response-message').style.display = 'none';
+            document.getElementById('blur-overlay').style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('response-message').innerText = "There was an error saving the contact.";
+            document.getElementById('response-message').style.color = 'red';
+            document.getElementById('response-message').style.display = 'block';
+            document.getElementById('popup-card').style.display = 'none';
+            document.getElementById('blur-overlay').style.display = 'none';
+        });
     });
 
     // Add Another Contact Button
     document.getElementById('addAnotherBtn').addEventListener('click', function() {
-        document.getElementById('popup-card').style.display = 'none';  // Hide the popup card
-        document.getElementById('contactForm').reset();  // Reset the form for a new entry
-        document.getElementById('blur-overlay').style.display = 'none';  // Hide background blur
-        window.location.href = '/add-contact'; 
+        document.getElementById('popup-card').style.display = 'none';
+        document.getElementById('contactForm').reset();
+        document.getElementById('blur-overlay').style.display = 'none';
+        window.location.href = '/'; 
     });
 
     // View Contacts Button
     document.getElementById('viewContactsBtn').addEventListener('click', function() {
-        window.location.href = '/view-contact';  // Redirect to the page displaying contacts
+        window.location.href = '/view-contact';
     });
 </script>
 

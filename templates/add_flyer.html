@@ -1,0 +1,108 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<h2>Add Flyer</h2>
+<div id="message" style="display: none;"></div>
+<form id="flyerForm" class="form-container" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="company">Company</label>
+        <input type="text" id="company" name="company" required>
+    </div>
+
+    <div class="form-group">
+        <label for="description">Description</label> <!-- Correct label -->
+        <input type="text" id="description" name="description" required> <!-- Unique name and id -->
+    </div>
+
+    <div class="form-group">
+        <label for="file">Flyer File</label>
+        <input type="file" id="file" name="file" required>
+    </div>
+    <button type="button" id="submitFlyerBtn" class="btn-submit">Add Flyer</button>
+</form>
+
+<!-- Background Blur -->
+<div id="blur-overlay" class="blur-overlay" style="display: none;"></div>
+
+<!-- Success Popup Card -->
+<div id="popup-card" class="popup-card" style="display: none;">
+    <div class="popup-content">
+        <p id="popup-message">Flyer added successfully!</p>
+        <div class="popup-buttons">
+            <button id="addAnotherFlyerBtn" class="btn-add">Add Another Flyer</button>
+            <button id="viewFlyersBtn" class="btn-view">View Flyers</button>
+        </div>
+    </div>
+</div>
+
+<!-- Regular Response Message -->
+<div id="response-message" style="margin-top: 20px; font-weight: bold;"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    // Function to get CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrfToken = getCookie('csrftoken'); // Fetch the CSRF token
+
+    // Handle flyer form submission
+    document.getElementById('submitFlyerBtn').addEventListener('click', function(e) {
+        e.preventDefault(); // Prevent form reload
+
+        const form = document.getElementById('flyerForm');
+        const formData = new FormData(form); // Collect all form data including file uploads
+
+        axios.post('/api/flyers/', formData, {
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'multipart/form-data', // Important for file uploads
+            }
+        })
+        .then(response => {
+            // Success: Show the popup card
+            document.getElementById('popup-card').style.display = 'block';
+            document.getElementById('popup-message').innerText = "Flyer added successfully!";
+            document.getElementById('popup-message').style.color = 'green';
+            form.reset();
+            document.getElementById('response-message').style.display = 'none';
+            document.getElementById('blur-overlay').style.display = 'block';
+        })
+        .catch(error => {
+            // Failure: Show the error message
+            console.error('Error:', error.response ? error.response.data : error.message);
+            document.getElementById('response-message').innerText = "There was an error saving the flyer.";
+            document.getElementById('response-message').style.color = 'red';
+            document.getElementById('response-message').style.display = 'block';
+            document.getElementById('popup-card').style.display = 'none';
+            document.getElementById('blur-overlay').style.display = 'none';
+        });
+    });
+
+    // Add Another Flyer Button
+    document.getElementById('addAnotherFlyerBtn').addEventListener('click', function() {
+        document.getElementById('popup-card').style.display = 'none';
+        document.getElementById('flyerForm').reset();
+        document.getElementById('blur-overlay').style.display = 'none';
+    });
+
+    // View Flyers Button
+    document.getElementById('viewFlyersBtn').addEventListener('click', function() {
+        window.location.href = '/flyer_table/';
+    });
+</script>
+
+{% endblock %}
